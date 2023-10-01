@@ -1,0 +1,12 @@
+/.idea/
+/build/
+/cmake-build-debug/
+/cmake-build-release/
+/venv/
+/libs/
+/python/data/
+*.pt
+*.so
+*.so.*
+*.a
+*.o
