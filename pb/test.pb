@@ -38,16 +38,22 @@ Import "libtorch_python.so" : EndImport
 Import "libtorch.so" : EndImport
 
 Import "libPBTorch.a"
-  create_tensor.i(*dims.Quad, ndims.i, type.i)
+  set_grad_mode(enabled.a)
+  is_autograd_enabled.a()
+  
+  create_tensor.i(*dims.Quad, ndims.i, type.b, gradient.a)
   delete_tensor(*tensor)
   
-  get_tensor_type(*tensor)
+  get_tensor_type.a(*tensor)
   get_tensor_pointer.i(*tensor)
+  tensor_to_dtype.i(*tensor, type.b)
   
   load_model.i(path.p-ascii)
   delete_model(*module)
   
-  forward.i(*module, *input)
+  forward1.i(*module, *in1)
+  forward2.i(*module, *in1, *in2)
+  forward3.i(*module, *in1, *in2, *in3)
 EndImport
 
 
@@ -61,7 +67,7 @@ Procedure.i ImageToTensor(img.i)
   
   Protected x.i, y.i, alpha.f, beta.f, *tensor, *tdata.Float
   
-  *tensor = create_tensor(@dimensions(), 4, #ScalarType_Float)
+  *tensor = create_tensor(@dimensions(), 4, #ScalarType_Float, #False)
   *tdata = get_tensor_pointer(*tensor)
   
   alpha = 1.0 / 255.0
@@ -81,6 +87,9 @@ Procedure.i ImageToTensor(img.i)
 EndProcedure
 
 
+set_grad_mode(#False)
+
+
 UsePNGImageDecoder()
 
 Define img.i
@@ -94,19 +103,9 @@ Define *model, *tensor_in, *tensor_out
 
 *model = load_model("test.pt")
 
-Dim dimensions.q(4)
-
-dimensions(0) = 1
-dimensions(1) = 1
-dimensions(2) = 64
-dimensions(3) = 64
-
-; *tensor_in = create_tensor(@dimensions(), ArraySize(dimensions()), #ScalarType_Float)
-; delete_tensor(*tensor_in)
-
 *tensor_in = ImageToTensor(img)
 
-*tensor_out = forward(*model, *tensor_in)
+*tensor_out = forward1(*model, *tensor_in)
 
 Define i.i, *tdata.Float, digit.i, max_prob.f
 
@@ -130,8 +129,8 @@ delete_tensor(*tensor_in)
 
 delete_model(*model)
 ; IDE Options = PureBasic 6.02 LTS (Linux - x64)
-; CursorPosition = 75
-; FirstLine = 62
+; CursorPosition = 104
+; FirstLine = 89
 ; Folding = -
 ; EnableXP
 ; Executable = test.elf

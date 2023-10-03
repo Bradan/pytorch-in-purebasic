@@ -31,7 +31,9 @@ class Model(torch.nn.Module):
 
         # 32 features to 10 features
         x = x.view(x.size(0), -1)
-        x = self.linear(x)
+
+        # softmax along the last dimension
+        x = torch.nn.functional.softmax(self.linear(x), dim=-1)
 
         return x
 
